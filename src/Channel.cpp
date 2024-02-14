@@ -34,16 +34,16 @@ void Channel::setinepoll(bool inepoll) {
 void Channel::setrevents(uint32_t ev) {
   revents_ = ev;
 }
-void Channel::setreadCallback_(Channel::EventCallback cb) {
+void Channel::setreadCallback(Channel::EventCallback cb) {
   readCallback_ = cb;
 }
-void Channel::setwriteCallback_(Channel::EventCallback cb) {
+void Channel::setwriteCallback(Channel::EventCallback cb) {
   writeCallback_ = cb;
 }
-void Channel::setcloseCallback_(Channel::EventCallback cb) {
+void Channel::setcloseCallback(Channel::EventCallback cb) {
   closeCallback_ = cb;
 }
-void Channel::seterrorCallback_(Channel::EventCallback cb) {
+void Channel::seterrorCallback(Channel::EventCallback cb) {
   errorCallback_ = cb;
 }
 void Channel::usset() {
@@ -84,5 +84,6 @@ void Channel::handleEvent() {
     closeCallback_();
   }
 }
+
 
 

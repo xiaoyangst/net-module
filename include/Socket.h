@@ -9,6 +9,8 @@
 #include <string>
 #include "InetAddress.h"
 
+int createNonblocking();
+
 class Socket {
  public:
   Socket(int fd);

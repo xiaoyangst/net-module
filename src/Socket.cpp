@@ -7,7 +7,7 @@
 #include "Socket.h"
 
 // 创建一个非阻塞的socket。
-int createnonblocking()
+int createNonblocking()
 {
   // 创建服务端用于监听的listenfd。
   int listenfd = socket(AF_INET,SOCK_STREAM|SOCK_NONBLOCK,IPPROTO_TCP);

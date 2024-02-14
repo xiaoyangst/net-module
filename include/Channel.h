@@ -9,6 +9,9 @@
 #include <cstdint>
 #include <functional>
 #include "EventLoop.h"
+
+class EventLoop;
+
 class Channel {
  public:
   using EventCallback = std::function<void()>;
@@ -35,10 +38,10 @@ class Channel {
   void handleEvent();   // 处理发生的事件（即执行设置的回调函数）
 
   //设置 事件发生后执行的回调函数
-  void setreadCallback_(EventCallback cb);
-  void setwriteCallback_(EventCallback cb);
-  void setcloseCallback_(EventCallback cb);
-  void seterrorCallback_(EventCallback cb);
+  void setreadCallback(EventCallback cb);
+  void setwriteCallback(EventCallback cb);
+  void setcloseCallback(EventCallback cb);
+  void seterrorCallback(EventCallback cb);
  private:
   int fd_ = -1;             // 一个 Channel 对应一个  fd
   EventLoop *loop_;         // 事件循环 （一个 EventLoop 可以对应多个 Channel ；一个 Channel 只属于 一个 EventLoop）

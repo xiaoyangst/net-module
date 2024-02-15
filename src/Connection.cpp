@@ -43,3 +43,24 @@ void Connection::setErrorCallback(std::function<void(spConnection)> cb) {
 void Connection::setWriteCallback(std::function<void(spConnection)> cb) {
   sendcompletecallback_ = cb;
 }
+bool Connection::timeout(time_t now, int val) {
+  return now - lastTime_.toInt() > val;
+}
+void Connection::onmessageCallback() {
+
+}
+void Connection::closeCallback() {
+
+}
+void Connection::errorCallback() {
+
+}
+void Connection::writeCallback() {
+
+}
+void Connection::send(const char *data, size_t size) {
+
+}
+void Connection::sendInloop(const char *data, size_t size) {
+
+}

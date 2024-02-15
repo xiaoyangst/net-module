@@ -19,7 +19,7 @@ TcpServer::TcpServer(const std::string &ip, const uint16_t port, int threadnum)
     subloops_.emplace_back(new EventLoop(false,5,10));
     subloops_[i]->setEpollTimeoutCallback(std::bind(&TcpServer::epolltimeout, this,std::placeholders::_1));
     subloops_[i]->setTimerCallback(std::bind(&TcpServer::removeconn, this,std::placeholders::_1));
-    threadpool_.addtask(std::bind(&EventLoop::run,subloops_[i].get()));
+    threadpool_.addtask(std::bind(&EventLoop::run,subloops_[i].get())); //绑定subLoop，因为任务的处理由subloops_完成
   }
 }
 TcpServer::~TcpServer() {
@@ -129,6 +129,7 @@ void TcpServer::newconnection(std::unique_ptr<Socket> clientsock) {
   }
 
   subloops_[conn->getCfd() % threadNum_]->newconnection(conn);
+
   if (newconnectioncb_){
     newconnectioncb_(conn);
   }

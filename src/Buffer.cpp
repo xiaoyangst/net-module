@@ -41,6 +41,7 @@ void Buffer::erase(size_t pos, size_t len) {
   buf_.erase(pos,len);
 }
 
+//出去报文头部，得到客户端实际传输的数据
 bool Buffer::pickMessage(std::string &ss) {
   if (buf_.size() == 0) return false;
 

@@ -11,11 +11,12 @@
 #include "InetAddress.h"
 #include "Channel.h"
 
+
 class Acceptor {
  public:
   using NewConnCb = std::function<void(std::unique_ptr<Socket>)>;
   
-  Acceptor(EventLoop* loop,std::string &ip, const uint16_t port);
+  Acceptor(EventLoop* loop,const std::string &ip, const uint16_t port);
   ~Acceptor();
   
   void newConnection();   // 处理客户端 连接的请求

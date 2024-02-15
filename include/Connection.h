@@ -10,11 +10,13 @@
 #include "Socket.h"
 #include "Channel.h"
 #include "Timestamp.h"
+#include "Buffer.h"
 #include <memory>
 
-class Buffer;
+class EventLoop;
+class Channel;
 
-class Connection {
+class Connection : public std::enable_shared_from_this<Connection>{
  public:
   using spConnection = std::shared_ptr<Connection>;
 

@@ -3,7 +3,7 @@
 //
 
 #include "Acceptor.h"
-Acceptor::Acceptor(EventLoop *loop, std::string &ip, const uint16_t port)
+Acceptor::Acceptor(EventLoop *loop,const std::string &ip, const uint16_t port)
   : loop_(loop)
   , servSock_(createNonblocking())
   , acceptChannel_(loop_,servSock_.getfd())

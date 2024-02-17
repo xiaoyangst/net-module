@@ -56,8 +56,11 @@ std::vector<Channel *> Epoller::loop(int timeout) {
 
   bzero(events_, sizeof(events_));
   int infds = epoll_wait(epollfd_, events_, MaxEvents, timeout);
-
   if (infds < 0) { //出错
+    if (errno != EINTR){
+      printf("检测\n");
+
+    }
     perror("epoll_wait failed \n");
     exit(-1);
   } else if (infds == 0) { // 超时

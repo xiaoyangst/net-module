@@ -5,6 +5,8 @@
 #include "Buffer.h"
 #include <cstring>
 
+
+
 Buffer::Buffer(uint16_t sep)
   :sep_(sep)
 {}
@@ -12,6 +14,10 @@ Buffer::Buffer(uint16_t sep)
 Buffer::~Buffer() {}
 
 void Buffer::append(const char *data, size_t size) {
+  if (data == nullptr){
+    perror("传入空指针\n");
+    exit(-1);
+  }
   buf_.append(data,size);
 }
 
@@ -41,7 +47,7 @@ void Buffer::erase(size_t pos, size_t len) {
   buf_.erase(pos,len);
 }
 
-//出去报文头部，得到客户端实际传输的数据
+//除去报文头部，得到客户端实际传输的数据
 bool Buffer::pickMessage(std::string &ss) {
   if (buf_.size() == 0) return false;
 
@@ -59,3 +65,5 @@ bool Buffer::pickMessage(std::string &ss) {
 
   return true;
 }
+
+

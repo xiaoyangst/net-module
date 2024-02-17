@@ -284,6 +284,26 @@ EventLoop分为：MainLoop 和 SubLoop
 
 连接建立之前的工作由 MainLoop 完成，连接建立之后的工作由 SubLoop 完成
 
+```c++
+void EventLoop::run() {
+  threadId_ = syscall(SYS_gettid);  // 获取事件循环所在线程的id
+
+  while (!stop_){
+    std::vector<Channel *> channels = ep_->loop(10 * 1000);		// 底层调用epoll_wait
+
+    if (channels.empty()){  //没有事件发生
+      epollTimeoutCallback_(this);
+    }else{
+      for (auto &ch : channels) {
+        ch->handleEvent();    //执行事件绑定的回调
+      }
+    }
+  }
+}
+```
+
+这是EventLoop最核心的功能，即底层调用epoll_wait，把发生的事件执行对应的回调函数
+
 ## Connection
 
 一个 Connection 对象 就是 客户端和服务端建立的连接
@@ -346,6 +366,10 @@ void Connection::writeCallback() {
   }
 }
 ```
+
+## ThreadPool
+
+启动SubLoop，只不过创建SubLoop是由TcpServer完成的
 
 ## TcpServer
 

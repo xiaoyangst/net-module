@@ -9,7 +9,8 @@ Connection::Connection(EventLoop *loop, std::unique_ptr<Socket> clientSock)
     : loop_(loop),
       clientSock_(std::move(clientSock)),
       disConnect_(false),
-      clientChannel_(new Channel(loop_, clientSock_->getfd())) {
+      clientChannel_(new Channel(loop_, clientSock_->getfd()))
+      {
   // 为新客户端连接准备读事件，并添加到epoll中
   clientChannel_->setreadCallback(std::bind(&Connection::onmessageCallback, this));
   clientChannel_->setcloseCallback(std::bind(&Connection::closeCallback, this));
@@ -57,13 +58,13 @@ void Connection::onmessageCallback() {
     ssize_t nread = read(getCfd(), buffer, sizeof(buffer));    //读取客户端发送的数据
 
     if (nread > 0) { //成功读取到数据
-      inputBuffer_->append(buffer, nread);
+      inputBuffer_.append(buffer, nread);
     } else if (nread == -1 && errno == EINTR) { // 读取数据的时候被信号中断，继续读取
       continue;
     } else if (nread == -1 && ((errno == EAGAIN) || (errno == EWOULDBLOCK))) {  // 全部的数据已读取完毕
       std::string message;
       while (true) { // 从接收缓冲区中拆分出客户端的请求消息
-        if (!inputBuffer_->pickMessage(message)) break;
+        if (!inputBuffer_.pickMessage(message)) break;
         lastTime_ = Timestamp::now();
 
         onmessagecallback_(shared_from_this(), message);
@@ -88,11 +89,11 @@ void Connection::errorCallback() {
 
 // 处理写事件的回调函数
 void Connection::writeCallback() {
-  int writen = ::send(getCfd(),outputBuffer_->data(),outputBuffer_->size(),0);
+  int writen = ::send(getCfd(),outputBuffer_.data(),outputBuffer_.size(),0);
   if (writen < 0){
-    outputBuffer_->erase(0,writen);
+    outputBuffer_.erase(0,writen);
   }
-  if (outputBuffer_->size() == 0){  //缓冲区中没有数据了
+  if (outputBuffer_.size() == 0){  //缓冲区中没有数据了
     clientChannel_->disableWriting();
     sendcompletecallback_(shared_from_this());
   }
@@ -114,6 +115,6 @@ void Connection::send(const char *data, size_t size) {
 
 // 当前loop线程可用的发送数据的方法（用send方法间接调用，而不是直接调用）
 void Connection::sendInloop(const char *data, size_t size) {
-  outputBuffer_->appendSep(data,size);  // 把需要发送的数据保存到Connection的发送缓冲区中
+  outputBuffer_.appendSep(data,size);  // 把需要发送的数据保存到Connection的发送缓冲区中
   clientChannel_->enableWriting();  //注册写事件
 }

@@ -49,8 +49,8 @@ class Connection : public std::enable_shared_from_this<Connection>{
   std::unique_ptr<Channel> clientChannel_;
 
   //每个 连接Connection 都有属于自己的 输入缓冲区inputBuffer_ 和输出缓冲区outputBuffer_
-  Buffer* inputBuffer_;
-  Buffer* outputBuffer_;
+  Buffer inputBuffer_;
+  Buffer outputBuffer_;
 
   std::atomic_bool disConnect_;   //判断连接是否断开
 

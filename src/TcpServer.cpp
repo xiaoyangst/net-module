@@ -19,7 +19,7 @@ TcpServer::TcpServer(const std::string &ip, const uint16_t port, int threadnum)
     subloops_.emplace_back(new EventLoop(false,5,10));
     subloops_[i]->setEpollTimeoutCallback(std::bind(&TcpServer::epolltimeout, this,std::placeholders::_1));
     subloops_[i]->setTimerCallback(std::bind(&TcpServer::removeconn, this,std::placeholders::_1));
-    threadpool_.addtask(std::bind(&EventLoop::run,subloops_[i].get())); //绑定subLoop，因为任务的处理由subloops_完成
+    threadpool_.addtask(std::bind(&EventLoop::run,subloops_[i].get()));
   }
 }
 TcpServer::~TcpServer() {
@@ -107,16 +107,19 @@ void TcpServer::errorconnection(TcpServer::spConnection conn) {
 
 void TcpServer::closeconnection(TcpServer::spConnection conn) {
   if (closecallback_){
+
     closecallback_(conn);
   }
   {
     std::lock_guard<std::mutex> lock_guard(connmutex_);
     // 连接关闭，移除即可
+    printf("获取锁 删除close\n");
     conns_.erase(conn->getCfd());
   }
 }
 
 void TcpServer::newconnection(std::unique_ptr<Socket> clientsock) {
+  printf("有新连接");
   spConnection conn(new Connection(subloops_[clientsock->getfd() % threadNum_].get(),std::move(clientsock)));
   conn->setCloseCallback(std::bind(&TcpServer::closeconnection,this,std::placeholders::_1));
   conn->setErrorCallback(std::bind(&TcpServer::errorconnection,this,std::placeholders::_1));

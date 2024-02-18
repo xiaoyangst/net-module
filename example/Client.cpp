@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
   for (int ii = 0; ii < 10; ii++) {
     sleep(1);
     memset(buf, 0, sizeof(buf));
-    sprintf(buf, "这是第%d个超级女生。", ii);
+    sprintf(buf, "人生能有几多愁？ %d", ii);
 
     char tmpbuf[1024];
     memset(tmpbuf, 0, sizeof(tmpbuf));

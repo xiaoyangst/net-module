@@ -113,13 +113,11 @@ void TcpServer::closeconnection(TcpServer::spConnection conn) {
   {
     std::lock_guard<std::mutex> lock_guard(connmutex_);
     // 连接关闭，移除即可
-    printf("获取锁 删除close\n");
     conns_.erase(conn->getCfd());
   }
 }
 
 void TcpServer::newconnection(std::unique_ptr<Socket> clientsock) {
-  printf("有新连接");
   spConnection conn(new Connection(subloops_[clientsock->getfd() % threadNum_].get(),std::move(clientsock)));
   conn->setCloseCallback(std::bind(&TcpServer::closeconnection,this,std::placeholders::_1));
   conn->setErrorCallback(std::bind(&TcpServer::errorconnection,this,std::placeholders::_1));

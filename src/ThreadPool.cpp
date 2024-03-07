@@ -5,9 +5,11 @@
 #include "ThreadPool.h"
 #include <unistd.h>
 #include <sys/syscall.h>
+#include <iostream>
 
 ThreadPool::ThreadPool(size_t threadnum, const std::string &threadtype)
     : stop_(false), threadtype_(threadtype) {
+
   for (size_t i = 0; i < threadnum; ++i) {
     threads_.emplace_back([this] {
       printf("create %s thread(%ld).\n", threadtype_.c_str(), syscall(SYS_gettid));     // 显示线程类型和线程ID
@@ -30,6 +32,7 @@ ThreadPool::ThreadPool(size_t threadnum, const std::string &threadtype)
           task = std::move(this->taskqueue_.front());
           this->taskqueue_.pop();
         }
+
         task();  // 执行任务。
       }
     });
@@ -52,7 +55,7 @@ void ThreadPool::stop() {
   if (stop_) return;
   stop_ = true;
   condition_.notify_all();
-  for (auto &thread : threads_) {
+  for (std::thread &thread : threads_) {
     thread.join();  // 等待全部线程执行完任务后退出
   }
 }

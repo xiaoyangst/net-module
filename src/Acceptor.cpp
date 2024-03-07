@@ -25,14 +25,14 @@ Acceptor::~Acceptor() {
 
 }
 
-//TODO 这段代码还不太理解
 
 void Acceptor::newConnection() {
   InetAddress clientAddr;
-  std::unique_ptr<Socket> clientSock(new Socket(servSock_.accept(clientAddr)));
+
+  std::unique_ptr<Socket> clientSock(new Socket(servSock_.accept(clientAddr)));   //调用accept方法得到 conn
   clientSock->setIpPort(clientAddr.getIP(),clientAddr.getPort());
 
-  NewConnCb_(std::move(clientSock));
+  NewConnCb_(std::move(clientSock));    // 回调TcpServer::newconnection()
 }
 void Acceptor::setNewConnCb(Acceptor::NewConnCb cb) {
   NewConnCb_ = cb;

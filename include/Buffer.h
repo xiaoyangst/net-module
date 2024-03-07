@@ -2,16 +2,6 @@
 // Created by xy on 2024-02-14.
 //
 
-/// @code
-///           预留空间             可读区域          可写区域
-/// +-------------------+------------------+------------------+
-/// | prependable bytes |  readable bytes  |  writable bytes  |
-/// |                   |     (CONTENT)    |                  |
-/// +-------------------+------------------+------------------+
-/// |                   |                  |                  |
-/// 0      <=      readerIndex   <=   writerIndex    <=     size
-///                读的起始位置          写的起始位置          Buffer的大小
-/// @endcode
 
 #ifndef NET_INCLUDE_BUFFER_H_
 #define NET_INCLUDE_BUFFER_H_

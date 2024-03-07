@@ -22,7 +22,7 @@ Socket::Socket(int fd) : fd_(fd) {
 
 }
 Socket::~Socket() {
-  ::close(fd_);
+  close(fd_);
 }
 int Socket::getfd() {
   return fd_;

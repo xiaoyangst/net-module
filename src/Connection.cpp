@@ -3,6 +3,7 @@
 //
 
 #include <cstring>
+#include <iostream>
 #include "Connection.h"
 
 Connection::Connection(EventLoop *loop, std::unique_ptr<Socket> clientSock)
@@ -16,8 +17,8 @@ Connection::Connection(EventLoop *loop, std::unique_ptr<Socket> clientSock)
   clientChannel_->setcloseCallback(std::bind(&Connection::closeCallback, this));
   clientChannel_->seterrorCallback(std::bind(&Connection::errorCallback, this));
   clientChannel_->setwriteCallback(std::bind(&Connection::writeCallback, this));
-  clientChannel_->usset();
-  clientChannel_->enableReading();
+  clientChannel_->usset();  //边缘触发(只通知一次)
+  clientChannel_->enableReading();  // 让epoll_wait()监视clientchannel的读事件
 }
 Connection::~Connection() {
 
@@ -65,7 +66,7 @@ void Connection::onmessageCallback() {
       std::string message;
       while (true) { // 从接收缓冲区中拆分出客户端的请求消息
         if (!inputBuffer_.pickMessage(message)) break;
-        lastTime_ = Timestamp::now();
+        lastTime_ = Timestamp::now(); //更新时间，表明连接非空闲状态
 
         onmessagecallback_(shared_from_this(), message);
       }

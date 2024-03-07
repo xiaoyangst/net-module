@@ -66,11 +66,11 @@ void Channel::disableWriting() {
   loop_->updateChannel(this);
 }
 void Channel::disableAll() {
-  events_ = 0;
+  events_ = 0;  // 表示不关注任何事件
   loop_->updateChannel(this);
 }
 void Channel::remove() {
-  disableAll();
+  //disableAll();
   loop_->removeChannel(this);
 }
 void Channel::handleEvent() {
@@ -80,8 +80,8 @@ void Channel::handleEvent() {
     readCallback_();
   }else if(revents_ & EPOLLOUT){
     writeCallback_();
-  }else{
-    closeCallback_();
+  }else{  // 其它事件，都视为错误
+    errorCallback_();
   }
 }
 

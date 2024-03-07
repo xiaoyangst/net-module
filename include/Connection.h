@@ -23,6 +23,9 @@ class Connection : public std::enable_shared_from_this<Connection>{
   Connection(EventLoop *loop,std::unique_ptr<Socket> clientSock);
   ~Connection();
 
+  bool getConStatue(){
+    return disConnect_;
+  }
   int getCfd() const;             //获得客户端client fd
   std::string getCip() const;     //获得客户端client ip
   uint16_t getCport() const;      //获得客户端client port
@@ -60,7 +63,7 @@ class Connection : public std::enable_shared_from_this<Connection>{
   std::function<void(spConnection,std::string&)> onmessagecallback_;   // 处理报文的回调函数
   std::function<void(spConnection)> sendcompletecallback_;               // 发送数据完成后的回调函数
 
-  Timestamp lastTime_;
+  Timestamp lastTime_;    // 该变量用于后面清理空闲连接的参考值
 };
 
 #endif //NET__CONNECTION_H_

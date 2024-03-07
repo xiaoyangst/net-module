@@ -4,6 +4,7 @@
 
 #include "TcpServer.h"
 #include <sys/syscall.h>
+#include <iostream>
 
 using spConnection = std::shared_ptr<Connection>;
 
@@ -22,6 +23,7 @@ class EchoServer{
     tcpserver_.seterrorconnectioncb(std::bind(&EchoServer::HandleError, this, std::placeholders::_1));
     tcpserver_.setonmessagecb(std::bind(&EchoServer::HandleMessage, this, std::placeholders::_1, std::placeholders::_2));
     tcpserver_.setsendcompletecb(std::bind(&EchoServer::HandleSendComplete, this, std::placeholders::_1));
+
   }
 
 // 启动服务。
@@ -56,6 +58,7 @@ class EchoServer{
   {
     printf("EchoServer::HandleClose thread is %ld.\n",syscall(SYS_gettid));
     printf ("%s connection closed(fd=%d,ip=%s,port=%d) ok.\n",Timestamp::now().toString().c_str(),conn->getCfd(),conn->getCip().c_str(),conn->getCport());
+
     // std::cout << "EchoServer conn closed." << std::endl;
     // tcpserver_.removeconn(conn->getCfd());
     // 根据业务的需求，在这里可以增加其它的代码。
@@ -64,7 +67,7 @@ class EchoServer{
 // 客户端的连接错误，在TcpServer类中回调此函数。
   void HandleError(spConnection conn)
   {
-    // std::cout << "EchoServer conn error." << std::endl;
+     std::cout << "EchoServer conn error." << std::endl;
 
     // 根据业务的需求，在这里可以增加其它的代码。
   }
@@ -89,12 +92,14 @@ class EchoServer{
   // 处理客户端的请求报文，用于添加给线程池。
   void OnMessage(spConnection conn,std::string& message)
   {
-     printf("%s message (fd=%d):%s\n",Timestamp::now().toString().c_str(),conn->getCfd(),message.c_str());
+     //printf("%s message (fd=%d):%s\n",Timestamp::now().toString().c_str(),conn->getCfd(),message.c_str());
 
     // 在这里，将经过若干步骤的运算。
-    message="reply:"+message;          // 回显业务。
-
-    conn->send(message.data(),message.size());   // 把数据发送出去。
+    // message="reply:"+message;          // 回显业务（压力测试时不用输出）
+    //std::cout<<"OnMessage message = "<<message<<std::endl;
+    if (!conn->getConStatue()){   // 发送数据之前检查连接状态，如果连接还在才允许发送
+      conn->send(message.data(),message.size());// 把数据发送出去
+    }
   }
 
 // 数据发送完成后，在TcpServer类中回调此函数。
@@ -134,7 +139,7 @@ int main(int argc,char *argv[]){
   signal(SIGTERM,Stop);    // 信号15，系统kill或killall命令默认发送的信号。
   signal(SIGINT,Stop);        // 信号2，按Ctrl+C发送的信号。
 
-  Server = new EchoServer(argv[1],atoi(argv[2]),1,10);
+  Server = new EchoServer(argv[1],atoi(argv[2]),3,5);
   Server->Start();
 
   return 0;

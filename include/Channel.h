@@ -45,7 +45,7 @@ class Channel {
  private:
   int fd_ = -1;             // 一个 Channel 对应一个  fd
   EventLoop *loop_;         // 事件循环 （一个 EventLoop 可以对应多个 Channel ；一个 Channel 只属于 一个 EventLoop）
-  bool inepoll_ = false;     // 判断Channel 是否已经 添加到 epoll红黑树上
+  std::atomic_bool inepoll_ = false;     // 判断Channel 是否已经 添加到 epoll红黑树上
   uint32_t events_ = 0;     // fd 感兴趣的事件（即需要监视的事件）
   uint32_t revents_ = 0;    // fd 已经发生的事件
 

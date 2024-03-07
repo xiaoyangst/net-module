@@ -7,19 +7,21 @@
 
 TcpServer::TcpServer(const std::string &ip, const uint16_t port, int threadnum)
   : threadNum_(threadnum)
-  , mainloop_(new EventLoop(true))
+  , mainloop_(new EventLoop(true))    // mainloop
   , acceptor_(mainloop_.get(),ip,port)
   , threadpool_(threadNum_,"IO")
 {
+  // 设置epoll_wait()超时的回调函数
   mainloop_->setEpollTimeoutCallback(std::bind(&TcpServer::epolltimeout, this,std::placeholders::_1));
-
+  // 设置处理新客户端连接请求的回调函数
   acceptor_.setNewConnCb(std::bind(&TcpServer::newconnection, this,std::placeholders::_1));
 
+  // subloop
   for (int i = 0; i < threadNum_; i++) {
-    subloops_.emplace_back(new EventLoop(false,5,10));
+    subloops_.emplace_back(new EventLoop(false,5,10));    // 创建从事件循环，存入subloops_容器中
     subloops_[i]->setEpollTimeoutCallback(std::bind(&TcpServer::epolltimeout, this,std::placeholders::_1));
     subloops_[i]->setTimerCallback(std::bind(&TcpServer::removeconn, this,std::placeholders::_1));
-    threadpool_.addtask(std::bind(&EventLoop::run,subloops_[i].get()));
+    threadpool_.addtask(std::bind(&EventLoop::run,subloops_[i].get())); // 在线程池中运行从事件循环
   }
 }
 TcpServer::~TcpServer() {
@@ -107,8 +109,7 @@ void TcpServer::errorconnection(TcpServer::spConnection conn) {
 
 void TcpServer::closeconnection(TcpServer::spConnection conn) {
   if (closecallback_){
-
-    closecallback_(conn);
+    closecallback_(conn);    // 回调EchoServer::HandleClose()
   }
   {
     std::lock_guard<std::mutex> lock_guard(connmutex_);

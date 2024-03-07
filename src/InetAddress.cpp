@@ -26,7 +26,7 @@ uint16_t InetAddress::getPort() {
 sockaddr *InetAddress::getAddr() {
   return (sockaddr *) &Addr_;
 }
-// TODO 有待分析
+
 void InetAddress::setAddr(sockaddr_in clientAddr) {
   Addr_ = clientAddr;
 }

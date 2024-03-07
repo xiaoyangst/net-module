@@ -8,7 +8,7 @@
 #include "EventLoop.h"
 
 
-//TODO 待了解的函数 timerfd_create
+
 int createtimerfd(int sec=30)
 {
   int tfd=timerfd_create(CLOCK_MONOTONIC,TFD_CLOEXEC|TFD_NONBLOCK);   // 创建timerfd。
@@ -23,6 +23,7 @@ int createtimerfd(int sec=30)
 EventLoop::EventLoop(bool mainloop, int timetvl, int timeout)
   : ep_(new Epoller)
   , mainLoop_(mainloop)
+  , timetvl_(timetvl)
   , timeout_(timeout)
   , stop_(false)
   , wakeupfd_(eventfd(0,EFD_NONBLOCK))    // 创建非阻塞的 eventfd
@@ -48,7 +49,7 @@ void EventLoop::wakeup() {
 
 //被唤醒，然后去执行 任务队列taskQueue_中的回调函数
 void EventLoop::handlewakeup() {
-  uint64_t val = 1;
+  uint64_t val;
   read(wakeupfd_,&val,sizeof(val));
 
   std::lock_guard<std::mutex> lock_guard(taskmutex_);
@@ -72,7 +73,7 @@ void EventLoop::setEpollTimeoutCallback(std::function<void(EventLoop *)> cb) {
   epollTimeoutCallback_ = cb;
 }
 
-
+// 不断执行 Channel上的的回调函数
 void EventLoop::run() {
   threadId_ = syscall(SYS_gettid);  // 获取事件循环所在线程的id
 
@@ -89,13 +90,13 @@ void EventLoop::run() {
   }
 }
 
-//TODO 有待理解
 
 // 闹钟响时执行的函数
 void EventLoop::handletimer() {
   struct itimerspec timeout;
   memset(&timeout,0,sizeof(struct itimerspec));
   timeout.it_value.tv_sec = timetvl_;
+  timeout.it_value.tv_nsec = 0;
   timerfd_settime(timerfd_,0,&timeout,0);
 
   if (mainLoop_){
